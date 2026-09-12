@@ -1,4 +1,4 @@
-import { claimListener, closeListener, reportResult } from '../api.js';
+import { claimListener, reportResult } from '../api.js';
 import { apiUrl, token } from '../config.js';
 import { forward } from '../forward.js';
 import { banner, delivered, failed, fatal, notice } from '../output.js';
@@ -65,8 +65,11 @@ export async function listenCommand(args) {
       await Promise.allSettled([...inFlight]);
     }
 
+    // The listener is left in place. Deleting it on exit would hand out a new
+    // URL next time, which is the exact thing a tunnel does and this does not —
+    // and Ctrl+C is the ordinary way to stop, not an act of decommissioning.
+    // Closing the stream is enough: the relay sees the disconnect at once.
     controller.abort();
-    await closeListener(listener.id);
 
     process.stdout.write('\n');
     process.exit(0);

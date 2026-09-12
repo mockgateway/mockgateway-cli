@@ -53,9 +53,6 @@ export async function claimListener(label) {
   return body.listener;
 }
 
-export async function closeListener(id) {
-  await call(`/api/v1/cli/listeners/${id}`, { method: 'DELETE' }).catch(() => {});
-}
 
 /**
  * Reported to the relay, not the app: the relay still holds the message and is
