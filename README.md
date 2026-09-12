@@ -24,7 +24,7 @@ outside — NAT, firewalls and corporate networks are not in the way.
 ## Use
 
 ```bash
-mockgateway login --token <token>     # from Settings → CLI
+mockgateway login --token '<token>'     # from Settings → CLI
 mockgateway listen --forward-to http://localhost:3000/webhook
 ```
 

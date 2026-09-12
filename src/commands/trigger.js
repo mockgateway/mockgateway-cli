@@ -7,7 +7,7 @@ import { dim, fatal, green, info } from '../output.js';
  */
 export async function trigger(args) {
   if (!token()) {
-    fatal('Not signed in.', 'Run: mockgateway login --token <token>');
+    fatal('Not signed in.', "Run: mockgateway login --token '<token>'");
   }
 
   const label = args['--label'] ?? 'default';

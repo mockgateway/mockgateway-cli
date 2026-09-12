@@ -10,7 +10,15 @@ export async function login(args) {
 
   if (!token) {
     fatal('A token is required.',
-      'Create one under Settings → CLI, then run:\n     mockgateway login --token <token>');
+      "Create one under Settings → CLI, then run:\n     mockgateway login --token '<token>'");
+  }
+
+  // A token is always id|hash. Missing the pipe means the shell split it, and
+  // the CLI only ever saw the digits — "rejected" would be a useless answer.
+  if (!String(token).includes('|')) {
+    fatal('That looks like only part of a token.',
+      "Your shell split it on the | character. Wrap it in quotes:\n" +
+      "     mockgateway login --token '7|jvKBKapUh...'");
   }
 
   // Checked now: a typo found here costs a second, found by `listen` it looks

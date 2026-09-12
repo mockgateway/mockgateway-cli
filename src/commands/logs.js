@@ -4,7 +4,7 @@ import { dim, fatal, green, info, red } from '../output.js';
 
 export async function logs(args) {
   if (!token()) {
-    fatal('Not signed in.', 'Run: mockgateway login --token <token>');
+    fatal('Not signed in.', "Run: mockgateway login --token '<token>'");
   }
 
   const limit = Number.parseInt(args['--limit'] ?? '10', 10) || 10;

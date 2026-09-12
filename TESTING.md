@@ -61,7 +61,7 @@ Without this it talks to production. Put it in the shell you test from.
 Get a token from **http://localhost:9501/settings/cli** → "Create a CLI token".
 
 ```bash
-mockgateway login --token <token>
+mockgateway login --token '<token>'
 cat ~/.mockgateway/config.json                  # token + api_url, mode 600
 ```
 

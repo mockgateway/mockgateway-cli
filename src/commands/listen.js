@@ -17,7 +17,7 @@ function validate(forwardTo) {
   }
 
   if (!token()) {
-    fatal('Not signed in.', 'Run: mockgateway login --token <token>');
+    fatal('Not signed in.', "Run: mockgateway login --token '<token>'");
   }
 }
 
@@ -101,6 +101,6 @@ export async function listenCommand(args) {
   });
 
   if (reason) {
-    fatal(reason, 'Run: mockgateway login --token <token>');
+    fatal(reason, "Run: mockgateway login --token '<token>'");
   }
 }

@@ -15,7 +15,7 @@ async function call(path, options = {}) {
   }).catch((error) => fatal(`Could not reach ${base}`, error.message));
 
   if (response.status === 401) {
-    fatal('That token was rejected.', 'Run: mockgateway login --token <token>');
+    fatal('That token was rejected.', "Run: mockgateway login --token '<token>'");
   }
 
   return response;
