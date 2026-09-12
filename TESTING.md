@@ -61,7 +61,7 @@ Without this it talks to production. Put it in the shell you test from.
 Get a token from **http://localhost:9501/settings/cli** → "Create a CLI token".
 
 ```bash
-mockgateway login --token '<token>'
+mockgateway login --token <token>
 cat ~/.mockgateway/config.json                  # token + api_url, mode 600
 ```
 
@@ -70,8 +70,18 @@ cat ~/.mockgateway/config.json                  # token + api_url, mode 600
 **Terminal 1** — a receiver that prints what arrives:
 
 ```bash
-node -e "require('http').createServer((q,s)=>{let b='';q.on('data',c=>b+=c);q.on('end',()=>{console.log(q.headers['content-type'],q.headers['x-signature'],b.slice(0,120));s.end('OK')})}).listen(4599)"
+cd cli && node dev/receiver.js
 ```
+
+It pretty-prints JSON, decodes form bodies, and pulls the signature and auth
+headers out of the noise. Flags for the failure paths below:
+
+| Flag | For testing |
+| ---- | ----------- |
+| `--port 3000` | a different port |
+| `--status 500` | a handler that errors |
+| `--slow 35` | a handler that hangs past the CLI's 30s timeout |
+| `--ack '[accepted]'` | gateways that require an echoed acknowledgement |
 
 **Terminal 2**:
 
@@ -101,6 +111,8 @@ These are most of what a user experiences, so test them deliberately.
 | Do this | Expect |
 | ------- | ------ |
 | Stop terminal 1, then `trigger` | `✗ connection refused — is your app running on :4599?` |
+| Restart it with `--status 500`, then `trigger` | `→ 500` in the CLI, `failed` in the log |
+| Restart it with `--slow 35`, then `trigger` | CLI reports a timeout after 30s |
 | Stop the CLI, then `trigger` | `"default" has no CLI connected.` |
 | `mockgateway listen` again in a 4th terminal | terminal 2 exits with "claimed by another session" |
 | `docker restart simulation-relay` | CLI reconnects quietly, no stack trace |
