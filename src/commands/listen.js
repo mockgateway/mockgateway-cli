@@ -34,7 +34,11 @@ export async function listenCommand(args) {
   const inFlight = new Set();
   let stopping = false;
 
-  const handle = async (frame) => {
+  // Started, not awaited. Awaiting here would stop the stream being read until
+  // the receiver answered, so a burst would queue behind a slow handler — and
+  // the server, which times a delivery out after 30s, would record webhooks as
+  // failed that this is about to deliver perfectly well.
+  const handle = (frame) => {
     const work = (async () => {
       const result = await forward(frame, forwardTo);
 
@@ -47,11 +51,8 @@ export async function listenCommand(args) {
 
     inFlight.add(work);
 
-    try {
-      await work;
-    } finally {
-      inFlight.delete(work);
-    }
+    // Tracked so Ctrl+C can wait for it; failures are already reported inside.
+    work.catch(() => {}).finally(() => inFlight.delete(work));
   };
 
   // Ctrl+C waits: the webhook already left the server, and exiting mid-flight
@@ -84,7 +85,7 @@ export async function listenCommand(args) {
     listenerToken: listener.token,
     signal: controller.signal,
 
-    onEvent: async ({ event, data }) => {
+    onEvent: ({ event, data }) => {
       if (event === 'delivery') return handle(data);
 
       if (event === 'superseded') {

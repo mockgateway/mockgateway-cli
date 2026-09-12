@@ -100,8 +100,16 @@ export async function listen({ url, token, listenerToken, onEvent, onStatus, sig
     const waitMs = Math.min(1000 * 2 ** attempt++, 30_000);
 
     await new Promise((resolve) => {
-      const timer = setTimeout(resolve, waitMs);
-      signal.addEventListener('abort', () => { clearTimeout(timer); resolve(); }, { once: true });
+      const done = () => {
+        clearTimeout(timer);
+        // Removed explicitly: a server down for hours means hundreds of loops,
+        // and a listener left behind on each is a leak the user never sees.
+        signal.removeEventListener('abort', done);
+        resolve();
+      };
+
+      const timer = setTimeout(done, waitMs);
+      signal.addEventListener('abort', done, { once: true });
     });
   }
 
