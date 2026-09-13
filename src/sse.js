@@ -48,7 +48,7 @@ export async function* parse(body) {
 
 // The server pings every 15s. Three missed in a row means the connection is
 // gone even though the socket still claims otherwise.
-const IDLE_TIMEOUT_MS = 45_000;
+const IDLE_TIMEOUT_MS = Number(process.env.SSE_IDLE_TIMEOUT_MS) || 45_000;
 
 /**
  * Pass chunks through, announcing each one.
@@ -109,9 +109,10 @@ export async function listen({ url, token, listenerToken, onEvent, onStatus, sig
       }
 
       attempt = 0;
+      alive();
       onStatus({ connected: true });
 
-      for await (const frame of parse(response.body)) {
+      for await (const frame of parse(announcing(response.body, alive))) {
         await onEvent(frame);
       }
 
@@ -120,7 +121,14 @@ export async function listen({ url, token, listenerToken, onEvent, onStatus, sig
       onStatus({ connected: false, reason: 'stream ended' });
     } catch (error) {
       if (signal.aborted) break;
-      onStatus({ connected: false, reason: error.message });
+
+      onStatus({
+        connected: false,
+        reason: attempt$.signal.aborted ? 'no data for 45s' : error.message,
+      });
+    } finally {
+      clearTimeout(watchdog);
+      signal.removeEventListener('abort', stopAttempt);
     }
 
     if (signal.aborted) break;
