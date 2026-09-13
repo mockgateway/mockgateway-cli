@@ -81,6 +81,10 @@ export function notice(message) {
   info(`${dim(clock())}  ${yellow(message)}`);
 }
 
+export function reconnected() {
+  info(`${dim(clock())}  ${green('Reconnected — listening again.')}`);
+}
+
 export function fatal(message, hint) {
   process.stderr.write(`\n${red('✗')} ${message}\n`);
   if (hint) process.stderr.write(`${dim(`  ${hint}`)}\n`);

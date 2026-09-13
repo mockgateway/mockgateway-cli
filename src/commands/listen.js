@@ -1,7 +1,7 @@
 import { claimListener, reportResult } from '../api.js';
 import { apiUrl, token } from '../config.js';
 import { forward } from '../forward.js';
-import { banner, delivered, failed, fatal, notice } from '../output.js';
+import { banner, delivered, failed, fatal, notice, reconnected } from '../output.js';
 import { listen as openStream } from '../sse.js';
 
 function validate(forwardTo) {
@@ -33,6 +33,7 @@ export async function listenCommand(args) {
   const controller = new AbortController();
   const inFlight = new Set();
   let stopping = false;
+  let dropped = false;
 
   // Started, not awaited. Awaiting here would stop the stream being read until
   // the receiver answered, so a burst would queue behind a slow handler — and
@@ -97,9 +98,21 @@ export async function listenCommand(args) {
       }
     },
 
+    // Silence after a run of "disconnected" lines is indistinguishable from
+    // having given up, so a recovery has to say so. Only after a visible
+    // disconnect — the banner already announces the first connection.
     onStatus: ({ connected, reason }) => {
-      if (!connected && reason && !stopping) {
+      if (stopping) return;
+
+      if (!connected && reason) {
+        dropped = true;
         notice(`Disconnected (${reason}) — reconnecting...`);
+        return;
+      }
+
+      if (connected && dropped) {
+        dropped = false;
+        reconnected();
       }
     },
   });

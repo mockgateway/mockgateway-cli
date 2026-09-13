@@ -46,6 +46,23 @@ export async function* parse(body) {
   }
 }
 
+// The server pings every 15s. Three missed in a row means the connection is
+// gone even though the socket still claims otherwise.
+const IDLE_TIMEOUT_MS = 45_000;
+
+/**
+ * Pass chunks through, announcing each one.
+ *
+ * Hooked at the chunk rather than the event level on purpose: the pings that
+ * prove the connection is alive carry no data and never become events.
+ */
+async function* announcing(body, onChunk) {
+  for await (const chunk of body) {
+    onChunk();
+    yield chunk;
+  }
+}
+
 /**
  * Stay connected, and keep handing events to the callback.
  *
@@ -57,6 +74,19 @@ export async function listen({ url, token, listenerToken, onEvent, onStatus, sig
   let attempt = 0;
 
   while (!signal.aborted) {
+    // Aborts this attempt alone, either because the caller stopped us or
+    // because nothing has arrived for long enough to call the socket dead.
+    const attempt$ = new AbortController();
+    const stopAttempt = () => attempt$.abort();
+
+    signal.addEventListener('abort', stopAttempt, { once: true });
+
+    let watchdog = null;
+    const alive = () => {
+      clearTimeout(watchdog);
+      watchdog = setTimeout(stopAttempt, IDLE_TIMEOUT_MS);
+    };
+
     try {
       const response = await fetch(url, {
         headers: {
@@ -64,7 +94,7 @@ export async function listen({ url, token, listenerToken, onEvent, onStatus, sig
           Authorization: `Bearer ${token}`,
           'X-Listener-Token': listenerToken,
         },
-        signal,
+        signal: attempt$.signal,
       });
 
       // Credentials will not fix themselves by trying again, and retrying a
