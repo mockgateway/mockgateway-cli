@@ -1,7 +1,7 @@
 {
   "name": "mockgateway-cli",
   "version": "1.0.0",
-  "description": "Receive MockGateway webhooks on localhost, without a tunnel. The URL never changes.",
+  "description": "Receive webhooks on localhost without a tunnel. Your machine holds the connection open, and the URL never changes.",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -15,26 +15,31 @@
   },
   "files": [
     "src",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "webhook",
     "webhooks",
+    "webhook-testing",
+    "webhook-forwarding",
     "localhost",
     "tunnel",
     "ngrok-alternative",
     "payment-gateway",
-    "testing",
+    "payment-testing",
+    "sse",
+    "cli",
+    "developer-tools",
     "mockgateway"
   ],
-  "homepage": "https://mockgateway.com",
+  "homepage": "https://mockgateway.com/#cli",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sohelrana820/backend-simulator.git",
-    "directory": "cli"
+    "url": "git+https://github.com/mockgateway/mockgateway-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/sohelrana820/backend-simulator/issues"
+    "url": "https://github.com/mockgateway/mockgateway-cli/issues"
   },
   "author": "Sohel Rana",
   "license": "MIT",
