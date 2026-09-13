@@ -1,7 +1,7 @@
 {
   "name": "mockgateway-cli",
   "version": "1.0.0",
-  "description": "Receive webhooks on localhost without a tunnel. Your machine holds the connection open, and the URL never changes.",
+  "description": "Official CLI for MockGateway, the payment gateway simulator. Receive its Stripe, PayPal, Braintree and other simulated webhooks on localhost without a tunnel.",
   "type": "module",
   "engines": {
     "node": ">=18"
@@ -19,6 +19,14 @@
     "LICENSE"
   ],
   "keywords": [
+    "mockgateway",
+    "mockgateway-cli",
+    "payment-gateway-simulator",
+    "payment-sandbox",
+    "stripe-simulator",
+    "paypal-simulator",
+    "fake-payment-gateway",
+    "payment-testing",
     "webhook",
     "webhooks",
     "webhook-testing",
@@ -26,12 +34,9 @@
     "localhost",
     "tunnel",
     "ngrok-alternative",
-    "payment-gateway",
-    "payment-testing",
-    "sse",
     "cli",
-    "developer-tools",
-    "mockgateway"
+    "sse",
+    "developer-tools"
   ],
   "homepage": "https://mockgateway.com/#cli",
   "repository": {
@@ -41,7 +46,7 @@
   "bugs": {
     "url": "https://github.com/mockgateway/mockgateway-cli/issues"
   },
-  "author": "Sohel Rana",
+  "author": "MockGateway",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
