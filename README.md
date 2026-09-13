@@ -1,13 +1,10 @@
 # mockgateway-cli
 
-The command-line companion to [MockGateway](https://mockgateway.com) — it
-delivers your gateway's webhooks to `localhost` while you build, so you're
-not exposing a tunnel or updating a webhook URL every time you restart.
-
-MockGateway itself simulates Stripe, PayPal, Braintree, Adyen, Square,
-Razorpay, and a dozen other payment providers, so you can build and test a
-checkout without a merchant account or a single real transaction. This CLI is
-the last piece: getting the webhooks it fires onto your machine.
+The command-line companion to [MockGateway](https://mockgateway.com), a
+payment gateway simulator for Stripe, PayPal, Braintree, Adyen, Square,
+Razorpay, and a dozen other providers. This CLI delivers your gateway's
+webhooks to `localhost` while you build, so there's no tunnel to expose and
+no webhook URL to update every time you restart.
 
 ```bash
 npm install -g mockgateway-cli
@@ -34,38 +31,32 @@ Configurations** in your MockGateway dashboard:
 
 ![Webhook URL field in the MockGateway dashboard](./assets/webhook-url-field.png)
 
-You only do this once. Restart the CLI, reboot your laptop, come back next
-month — the same URL keeps working.
+Do this once. It keeps working after a restart, a reboot, or a month away.
 
 ## Why not just tunnel it
 
-Every gateway you build has the same webhook loop: expose `localhost`, paste
-the URL somewhere, test, and do it again tomorrow because the tunnel gave you
-a new address overnight. That's the part this replaces.
+A tunnel gives you a new address every time it restarts, so the webhook
+setting has to be updated again. This URL doesn't move, because it's tied to
+your MockGateway account, not to a socket.
 
 | | a tunnel | mockgateway-cli |
 | --- | --- | --- |
-| Separate account | yes | no, uses your MockGateway login |
+| Separate account | yes | no |
 | URL changes | every restart | never |
 | Update the webhook setting | every time | once |
 | Machine reachable from the internet | yes | no |
-| Delivery log | a separate dashboard | right in your terminal |
-
-The URL is tied to your account, not to whatever socket happened to open
-this time, which is why it doesn't move.
+| Delivery log | a separate dashboard | your terminal |
 
 ## How it works
 
-MockGateway can't call your machine directly — it's behind NAT, a firewall,
-or it's a laptop that isn't always on. So the CLI makes the connection the
-other way: it dials out to MockGateway and holds that line open. When a
-webhook fires, MockGateway writes it down that same line, and the CLI is the
-one making the HTTP request to your `--forward-to` URL, from inside your own
-network.
+MockGateway can't call your machine directly: it's behind NAT, a firewall,
+or a laptop that isn't always on. So the CLI connects out to MockGateway and
+holds that line open. When a webhook fires, MockGateway sends it down the
+line, and the CLI makes the actual HTTP request to your `--forward-to` URL
+from inside your own network.
 
-Nothing about the webhook is adjusted for this. Same method, same headers,
-same signature your gateway is configured to send. Whatever you're testing
-gets tested against the real thing, not a stand-in for it.
+The webhook itself isn't changed for this. Same method, headers, and
+signature your gateway is configured to send.
 
 ## Commands
 
@@ -76,8 +67,8 @@ gets tested against the real thing, not a stand-in for it.
 | `trigger [--gateway <slug>] [--scenario <name>] [--label <name>]` | Send one webhook now, without running a payment |
 | `logs [--limit <n>]` | What was delivered recently |
 
-`--label` names the listener — leave it out and you get one called
-`default`. Give two projects different labels and they don't share a URL:
+`--label` names the listener. Leave it out and you get one called `default`.
+Give two projects different labels and they don't share a URL:
 
 ```bash
 mockgateway listen --forward-to http://localhost:3000/hook --label shop
